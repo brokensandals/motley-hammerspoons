@@ -39,6 +39,19 @@ hs.hotkey.bind("shift+cmd+ctrl", "S", spoon.ArrangeWindows.saveLayout, "save lay
 hs.hotkey.bind("shift+cmd+ctrl", "C", spoon.ArrangeWindows.clearSavedLayouts, "clear saved layouts")
 ```
 
+## AudioSelect
+
+For configuring audio output using the keyboard.
+
+- Switch audio output device using fuzzy finder
+- Change volume by entering a percentage
+
+```lua
+hs.loadSpoon("AudioSelect")
+hs.hotkey.bind("shift+cmd+ctrl", "1", spoon.AudioSelect.chooseAudioOutput, "set audio output device")
+hs.hotkey.bind("shift+cmd+ctrl", "V", spoon.AudioSelect.chooseAudioOutputVolume, "set volume")
+```
+
 ## License
 
 This is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
