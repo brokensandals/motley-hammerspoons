@@ -144,13 +144,7 @@ end
 
 function obj:chooseLayout()
   local chooser = hs.chooser.new(function(choice)
-    if choice.id == "_save" then
-      obj:saveLayout()
-    elseif choice.id == "_clear" then
-      obj:clearSavedLayouts()
-    else
-      obj:applyLayout({}, obj.layouts[choice.id])
-    end
+    obj:applyLayout({}, obj.layouts[choice.id])
   end)
   
   local choices = {}
@@ -158,8 +152,6 @@ function obj:chooseLayout()
     choices[#choices+1] = {text = layout.text, id = id}
   end
   table.sort(choices, function(a, b) return a.text < b.text end)
-  choices[#choices+1] = {text = "save", id = "_save"}
-  choices[#choices+1] = {text = "clear saved", id = "_clear"}
 
   chooser:choices(choices)
   chooser:placeholderText("layout")
