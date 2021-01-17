@@ -8,7 +8,7 @@ obj.author = "Jacob Williams <jacobaw@gmail.com>"
 obj.license = "MIT - https://opensource.org/licenses/MIT"
 obj.homepage = "https://github.com/brokensandals/motley-hammerspoons"
 
---- WindowArranger:maximize()
+--- ArrangeWindows:maximize()
 --- Method
 --- Maximizes the currently open window.
 function obj:maximize()
@@ -16,9 +16,29 @@ function obj:maximize()
   hs.layout.apply({{nil, win, nil, hs.layout.maximized, nil, nil}})
 end
 
---- WindowArranger.layouts
+--- ArrangeWindows.layouts
 --- Variable
---- 
+--- Table containing the options that the layout chooser will show.
+---
+--- Each key should be a unique value identifying the layout, and the value
+--- should be a table with the following keys:
+---
+---   text: string display name for the layout
+---   source: indicates ownership/origin of the layout
+---           layouts provided by this spoon have source "default"
+---           layouts managed by the save/load functionality have source "saved"
+---   windows: a list of specifications for laying out windows; they should be ordered such that the frontmost window is first; each table has the following keys:
+---     selector: specifies what window is to be moved
+---               "focused" means the currently focused window
+---               "chooser" means to ask the user to select a window
+---               "match" means to look up the window by ID or title
+---     prompt: when selector=="chooser", this is the prompt to show in the fuzzy finder
+---     id: when selector="match", the window ID, if available
+---     title: when selector="match", the window title
+---     applicationTitle: when selector="match", the application title, if known
+---     frameRect: optional frame rect to pass to hs.layout
+---     fullFrameRect: optional full frame rect to pass to hs.layout
+---     unitRect: optional unit rect to pass to hs.layout
 obj.layouts = {
   ["50-50"] = {
     text = "fifty-fifty",
@@ -56,6 +76,11 @@ obj.layouts = {
   }
 }
 
+--- ArrangeWindows:applyLayout(selected, layout)
+--- Method
+--- Applies the specified layout.
+--- selected is a list of hs.window objects indicating the windows to apply the layout to; normally, just pass an empty table and this function will figure it out.
+--- layout is a table of the format documented for the values of ArrangeWindows.layouts
 function obj:applyLayout(selected, layout)
   for i=#selected+1,#(layout.windows) do
     local cfg = layout.windows[i]
@@ -122,6 +147,9 @@ function obj:applyLayout(selected, layout)
   selected[1]:focus()
 end
 
+--- ArrangeWindows:captureLayout()
+--- Method
+--- Returns a layout (see ArrangeWindows.layouts) based on the current arrangement of windows on-screen.
 function obj:captureLayout()
   local layout = {windows = {}}
   local windows = hs.window.orderedWindows()
@@ -137,6 +165,9 @@ function obj:captureLayout()
   return layout
 end
 
+--- ArrangeWindows:saveLayout()
+--- Method
+--- Asks the user for a name and then saves the current arrangement of windows.
 function obj:saveLayout()
   local focused = hs.window.focusedWindow()
   hs.focus()
@@ -153,6 +184,9 @@ function obj:saveLayout()
   end
 end
 
+--- ArrangeWindows:clearSavedLayouts()
+--- Method
+--- Erases the user's saved layouts.
 function obj:clearSavedLayouts()
   for k,layout in pairs(obj.layouts) do
     if layout.source == "saved" then
@@ -162,6 +196,9 @@ function obj:clearSavedLayouts()
   obj:persistSavedLayouts()
 end
 
+--- ArrangeWindows:chooseLayout()
+--- Method
+--- Displays a chooser for all the layouts in ArrangeWindows.layouts and applies the selected one.
 function obj:chooseLayout()
   local chooser = hs.chooser.new(function(choice)
     obj:applyLayout({}, obj.layouts[choice.id])
@@ -178,6 +215,9 @@ function obj:chooseLayout()
   chooser:show()
 end
 
+--- ArrangeWindows:chooseWindow()
+--- Method
+--- Shows a chooser with each open window's title, and then focuses on the chosen window.
 function obj:chooseWindow()
   local windows = hs.window.allWindows()
   local choices = {}
@@ -196,6 +236,9 @@ function obj:chooseWindow()
   chooser:show()
 end
 
+--- ArrangeWindows:init()
+--- Method
+--- Loads saved layouts from settings.
 function obj:init()
   local saved = hs.settings.get("ArrangeWindows.saved")
   if saved then
@@ -211,6 +254,9 @@ function obj:init()
   end
 end
 
+--- ArrangeWindows:persistSavedLayouts()
+--- Method
+--- Copies the user's custom layouts into their settings.
 function obj:persistSavedLayouts()
   local save = {}
   for k,v in pairs(obj.layouts) do
