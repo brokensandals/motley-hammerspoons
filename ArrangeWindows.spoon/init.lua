@@ -87,7 +87,22 @@ function obj:applyLayout(selected, layout)
       chooser:show()
       return
     elseif cfg.selector == "match" then
-      selected[#selected+1] = hs.window.get(cfg.id)
+      local win = nil
+      if cfg.id then
+        win = hs.window.get(cfg.id)
+        if not win then
+          -- HACK to forget outdated window IDs in case they get reused for other windows later
+          cfg.id = nil
+          obj:persistSavedLayouts()
+        end
+      end
+      
+      if cfg.applicationTitle and not win then
+        local app = hs.application.get(cfg.applicationTitle, 3)
+        win = app and app:getWindow(cfg.title)
+      end
+      win = win or hs.window.get(cfg.title)
+      selected[#selected+1] = win
     else
       -- error
       return
@@ -102,6 +117,7 @@ function obj:applyLayout(selected, layout)
   for i = #selected,1,-1 do
     selected[i]:raise()
   end
+  print(hs.inspect.inspect(resultlayout))
   hs.layout.apply(resultlayout)
   selected[1]:focus()
 end
@@ -113,6 +129,8 @@ function obj:captureLayout()
     layout.windows[i] = {
       selector = "match",
       id = win:id(),
+      title = win:title(),
+      applicationTitle = (win:application() and win:application():title()) or nil,
       frameRect = win:frame()
     }
   end
@@ -183,6 +201,12 @@ function obj:init()
   if saved then
     for k,v in pairs(saved) do
       obj.layouts[k] = v
+      for _,cfg in pairs(v.windows) do
+        local fr = cfg.frameRect
+        if fr then
+          cfg.frameRect = hs.geometry.rect(fr._x, fr._y, fr._w, fr._h)
+        end
+      end
     end
   end
 end
