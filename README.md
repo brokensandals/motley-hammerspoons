@@ -52,6 +52,16 @@ hs.hotkey.bind("shift+cmd+ctrl", "1", spoon.AudioSelect.chooseAudioOutput, "set 
 hs.hotkey.bind("shift+cmd+ctrl", "V", spoon.AudioSelect.chooseAudioOutputVolume, "set volume")
 ```
 
+## MenuChooser
+
+Give every application a command palette!
+This spoon shows a fuzzy finder containing all the menu items of the current (frontmost) application.
+
+```lua
+hs.loadSpoon("MenuChooser")
+hs.hotkey.bind("shift+cmd+ctrl", "P", spoon.MenuChooser.chooseMenuItem, "invoke menu item")
+```
+
 ## License
 
 This is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
