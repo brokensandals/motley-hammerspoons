@@ -16,53 +16,107 @@ function obj:maximize()
   hs.layout.apply({{nil, win, nil, hs.layout.maximized, nil, nil}})
 end
 
-function obj:chooseWinsAndApplyLayout(chosen, rects)
-  local chosenSet = {}
-  for _,win in ipairs(chosen) do
-    chosenSet[win:id()] = true
-  end
-  local windows = hs.window.allWindows()
-  local choices = {}
-  for i,win in ipairs(windows) do
-    if not chosenSet[win:id()] then
-      choices[#choices+1] = {
-        text = "" .. win:application():title() .. " " .. win:title(),
-        -- image = win:snapshot() -- too slow
-        id = win:id()
-      }
-    end
-  end
-  local chooser = hs.chooser.new(function(selected)
-    local win = hs.window.get(selected.id)
-    chosen[#chosen+1] = win
-    if #chosen >= #rects then
-      local layout = {}
-      for i,rect in ipairs(rects) do
-        layout[i] = {nil, chosen[i], nil, rects[i], nil, nil}
-        chosen[i]:raise()
+--- WindowArranger.layouts
+--- Variable
+--- 
+obj.layouts = {
+  ["50-50"] = {
+    text = "fifty-fifty",
+    source = "default",
+    windows = {
+      {selector = "focused", unitRect = hs.layout.left50},
+      {selector = "chooser", unitRect = hs.layout.right50, prompt = "right window"}
+    }
+  },
+  ["60-40"] = {
+    text = "sixty-forty",
+    source = "default",
+    windows = {
+      {selector = "focused", unitRect = hs.geometry(0,0,0.6,1)},
+      {selector = "chooser", unitRect = hs.geometry(0.6,0,0.4,1), prompt = "right window"}
+    }
+  },
+  ["3-pane-50"] = {
+    text = "three-pane fifty-fifty",
+    source = "default",
+    windows = {
+      {selector = "focused", unitRect = hs.geometry(0,0,0.5,1)},
+      {selector = "chooser", unitRect = hs.geometry(0.5,0,0.5,0.5), prompt = "top right window"},
+      {selector = "chooser", unitRect = hs.geometry(0.5,0.5,0.5,0.5), prompt = "bottom right window"}
+    }
+  },
+  ["3-pane-60"] = {
+    text = "three-pane sixty-forty",
+    source = "default",
+    windows = {
+      {selector = "focused", unitRect = hs.geometry(0,0,0.6,1)},
+      {selector = "chooser", unitRect = hs.geometry(0.6,0,0.4,0.5), prompt = "top right window"},
+      {selector = "chooser", unitRect = hs.geometry(0.6,0.5,0.4,0.5), prompt = "bottom right window"}
+    }
+  }
+}
+
+function obj:applyLayout(selected, layout)
+  for i=#selected+1,#(layout.windows) do
+    local cfg = layout.windows[i]
+    if cfg.selector == "focused" then
+      selected[#selected+1] = hs.window.focusedWindow()
+    elseif cfg.selector == "chooser" then
+      local exclude = {}
+      for _,win in pairs(selected) do
+        exclude[win:id()] = true
       end
-      hs.layout.apply(layout)
+
+      local choices = {}
+      for i,win in ipairs(hs.window.allWindows()) do
+        if not exclude[win:id()] then
+          choices[#choices+1] = {
+            text = "" .. win:application():title() .. " " .. win:title(),
+            id = win:id()
+          }
+        end
+      end
+
+      local chooser = hs.chooser.new(function(choice)
+        local win = hs.window.get(choice.id)
+        selected[#selected+1] = win
+        obj:applyLayout(selected, layout)
+      end)
+      chooser:choices(choices)
+      chooser:placeholderText(cfg.prompt)
+      chooser:show()
+      return
+    elseif cfg.selector == "match" then
+      selected[#selected+1] = hs.window.get(cfg.id)
     else
-      chooseWinsAndApplyLayout(chosen, rects)
+      -- error
+      return
     end
-  end)
-  chooser:choices(choices)
-  chooser:placeholderText("window " .. (#chosen+1))
-  chooser:show()
+  end
+
+  local resultlayout = {}
+  for i,win in ipairs(selected) do
+    local cfg = layout.windows[i]
+    resultlayout[i] = {nil, win, nil, cfg.unitRect, cfg.frameRect, cfg.fullFrameRect}
+  end
+  for i = #selected,1,-1 do
+    selected[i]:raise()
+  end
+  hs.layout.apply(resultlayout)
+  selected[1]:focus()
 end
 
-obj.savedLayouts = {}
-
-function obj:saveLayoutByName(name)
-  local layout = {}
+function obj:captureLayout()
+  local layout = {windows = {}}
   local windows = hs.window.orderedWindows()
   for i,win in ipairs(windows) do
-    layout[i] = {
+    layout.windows[i] = {
+      selector = "match",
       id = win:id(),
-      frame = win:frame()
+      frameRect = win:frame()
     }
   end
-  obj.savedLayouts[name] = layout
+  return layout
 end
 
 function obj:saveLayout()
@@ -70,71 +124,43 @@ function obj:saveLayout()
   hs.focus()
   local btn, name = hs.dialog.textPrompt('Save Layout', 'Enter a name for the layout.', 'custom', 'OK', 'Cancel')
   if btn == 'OK' then
-    obj:saveLayoutByName(name)
+    local layout = obj:captureLayout()
+    layout.text = name
+    layout.source = "saved"
+    obj.layouts[name] = layout
   end
   if focused then
     focused:focus()
   end
 end
 
-function obj:loadLayoutByName(name)
-  local layout = obj.savedLayouts[name]
-  for i = #layout, 1, -1 do
-    local entry = layout[i]
-    local win = hs.window.get(entry.id)
-    if win then
-      win:setFrame(entry.frame)
-      win:raise()
-      if i == 1 then
-        win:focus()
-      end
+function obj:clearSavedLayouts()
+  for k,layout in obj.layouts do
+    if layout.source == "saved" then
+      obj.layouts[k] = nil
     end
   end
 end
 
 function obj:chooseLayout()
-  local actions = {
-    ["60-40"] = function()
-      obj:chooseWinsAndApplyLayout(
-        {hs.window.focusedWindow()},
-        {hs.geometry(0,0,0.6,1), hs.geometry(0.6,0,0.4,1)}
-      )
-    end,
-    ["50-50"] = function()
-      obj:chooseWinsAndApplyLayout(
-        {hs.window.focusedWindow()},
-        {hs.layout.left50, hs.layout.right50}
-      )
-    end,
-    ["3-pane-60"] = function()
-      obj:chooseWinsAndApplyLayout(
-        {hs.window.focusedWindow()},
-        {hs.geometry(0,0,0.6,1), hs.geometry(0.6,0,0.4,0.5), hs.geometry(0.6,0.5,0.4,0.5)})
-    end,
-    ["3-pane-50"] = function()
-      obj:chooseWinsAndApplyLayout(
-        {hs.window.focusedWindow()},
-        {hs.geometry(0,0,0.5,1), hs.geometry(0.5,0,0.5,0.5), hs.geometry(0.5,0.5,0.5,0.5)})
-    end,
-    save = obj.saveLayout,
-    clear = function() obj.savedLayouts = {} end
-  }
-  local chooser = hs.chooser.new(function(selected)
-    actions[selected.id]()
+  local chooser = hs.chooser.new(function(choice)
+    if choice.id == "_save" then
+      obj:saveLayout()
+    elseif choice.id == "_clear" then
+      obj:clearSavedLayouts()
+    else
+      obj:applyLayout({}, obj.layouts[choice.id])
+    end
   end)
-  local choices = {
-    {text = "fifty-fifty", id = "50-50"},
-    {text = "sixty-forty", id = "60-40"},    
-    {text = "three pane sixty-forty", id = "3-pane-60"},
-    {text = "three pane fifty-fifty", id = "3-pane-50"},
-    {text = "save", id = "save"},
-    {text = "clear saved", id = "clear"}
-  }
-  for name,layout in pairs(obj.savedLayouts) do
-    local id = "user-" .. name
-    actions[id] = function() obj:loadLayoutByName(name) end
-    choices[#choices+1] = {text = name, id = id}
+  
+  local choices = {}
+  for id,layout in pairs(obj.layouts) do
+    choices[#choices+1] = {text = layout.text, id = id}
   end
+  table.sort(choices, function(a, b) return a.text < b.text end)
+  choices[#choices+1] = {text = "save", id = "_save"}
+  choices[#choices+1] = {text = "clear saved", id = "_clear"}
+
   chooser:choices(choices)
   chooser:placeholderText("layout")
   chooser:show()
