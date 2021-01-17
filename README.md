@@ -62,6 +62,15 @@ hs.loadSpoon("MenuChooser")
 hs.hotkey.bind("shift+cmd+ctrl", "P", spoon.MenuChooser.chooseMenuItem, "invoke menu item")
 ```
 
+## SafariBookmarkChooser
+
+Opens a fuzzy finder for Safari bookmarks.
+
+```lua
+hs.loadSpoon("SafariBookmarkChooser")
+hs.hotkey.bind("shift+cmd+ctrl", "B", spoon.SafariBookmarkChooser.chooseBookmark, "open bookmark")
+```
+
 ## License
 
 This is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
