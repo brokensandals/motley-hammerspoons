@@ -9,9 +9,9 @@ obj.license = "MIT - https://opensource.org/licenses/MIT"
 obj.homepage = "https://github.com/brokensandals/motley-hammerspoons"
 
 --- MenuChooser.chooseMenuItem()
---- Method
+--- Function
 --- Shows a chooser containing all menu items of the current (frontmost) application.
-function obj:chooseMenuItem()
+function obj.chooseMenuItem()
   local app = hs.application.frontmostApplication()
   app:getMenuItems(function(menu)
     local choices = {}

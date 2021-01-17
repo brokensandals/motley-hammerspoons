@@ -9,9 +9,9 @@ obj.license = "MIT - https://opensource.org/licenses/MIT"
 obj.homepage = "https://github.com/brokensandals/motley-hammerspoons"
 
 --- AudioSelect.chooseAudioOutput()
---- Method
+--- Function
 --- Shows a chooser listing all audio output devices.
-function obj:chooseAudioOutput()
+function obj.chooseAudioOutput()
   local devices = hs.audiodevice.allOutputDevices()
   local choices = {}
   for index,device in ipairs(devices) do
@@ -29,9 +29,9 @@ function obj:chooseAudioOutput()
 end
 
 --- AudioSelect.chooseAudioOutput()
---- Method
+--- Function
 --- Shows a text entry dialog for setting volume to a number between 0 and 100.
-function obj:chooseAudioOutputVolume()
+function obj.chooseAudioOutputVolume()
   local focused = hs.window.focusedWindow()
   hs.focus()
   local curvol = hs.audiodevice.defaultOutputDevice():volume()

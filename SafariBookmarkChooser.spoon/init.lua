@@ -8,10 +8,10 @@ obj.author = "Jacob Williams <jacobaw@gmail.com>"
 obj.license = "MIT - https://opensource.org/licenses/MIT"
 obj.homepage = "https://github.com/brokensandals/motley-hammerspoons"
 
---- SafariBookmarkChooser:chooseBookmark()
---- Method
+--- SafariBookmarkChooser.chooseBookmark()
+--- Function
 --- Opens Safari, loads its bookmark list, and displays a chooser for them.
-function obj:chooseBookmark()
+function obj.chooseBookmark()
   local focused = hs.window.focusedWindow()
   local safari = hs.application.open('Safari', 5, true)
   safari:getMenuItems(function(menu)

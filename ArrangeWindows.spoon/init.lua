@@ -8,10 +8,10 @@ obj.author = "Jacob Williams <jacobaw@gmail.com>"
 obj.license = "MIT - https://opensource.org/licenses/MIT"
 obj.homepage = "https://github.com/brokensandals/motley-hammerspoons"
 
---- ArrangeWindows:maximize()
---- Method
+--- ArrangeWindows.maximize()
+--- Function
 --- Maximizes the currently open window.
-function obj:maximize()
+function obj.maximize()
   local win = hs.window.focusedWindow()
   hs.layout.apply({{nil, win, nil, hs.layout.maximized, nil, nil}})
 end
@@ -76,12 +76,12 @@ obj.layouts = {
   }
 }
 
---- ArrangeWindows:applyLayout(selected, layout)
---- Method
+--- ArrangeWindows.applyLayout(selected, layout)
+--- Function
 --- Applies the specified layout.
 --- selected is a list of hs.window objects indicating the windows to apply the layout to; normally, just pass an empty table and this function will figure it out.
 --- layout is a table of the format documented for the values of ArrangeWindows.layouts
-function obj:applyLayout(selected, layout)
+function obj.applyLayout(selected, layout)
   for i=#selected+1,#(layout.windows) do
     local cfg = layout.windows[i]
     if cfg.selector == "focused" then
@@ -105,7 +105,7 @@ function obj:applyLayout(selected, layout)
       local chooser = hs.chooser.new(function(choice)
         local win = hs.window.get(choice.id)
         selected[#selected+1] = win
-        obj:applyLayout(selected, layout)
+        obj.applyLayout(selected, layout)
       end)
       chooser:choices(choices)
       chooser:placeholderText(cfg.prompt)
@@ -118,7 +118,7 @@ function obj:applyLayout(selected, layout)
         if not win then
           -- HACK to forget outdated window IDs in case they get reused for other windows later
           cfg.id = nil
-          obj:persistSavedLayouts()
+          obj.persistSavedLayouts()
         end
       end
       
@@ -142,15 +142,14 @@ function obj:applyLayout(selected, layout)
   for i = #selected,1,-1 do
     selected[i]:raise()
   end
-  print(hs.inspect.inspect(resultlayout))
   hs.layout.apply(resultlayout)
   selected[1]:focus()
 end
 
---- ArrangeWindows:captureLayout()
---- Method
+--- ArrangeWindows.captureLayout()
+--- Function
 --- Returns a layout (see ArrangeWindows.layouts) based on the current arrangement of windows on-screen.
-function obj:captureLayout()
+function obj.captureLayout()
   local layout = {windows = {}}
   local windows = hs.window.orderedWindows()
   for i,win in ipairs(windows) do
@@ -165,43 +164,43 @@ function obj:captureLayout()
   return layout
 end
 
---- ArrangeWindows:saveLayout()
---- Method
+--- ArrangeWindows.saveLayout()
+--- Function
 --- Asks the user for a name and then saves the current arrangement of windows.
-function obj:saveLayout()
+function obj.saveLayout()
   local focused = hs.window.focusedWindow()
   hs.focus()
   local btn, name = hs.dialog.textPrompt('Save Layout', 'Enter a name for the layout.', 'custom', 'OK', 'Cancel')
   if btn == 'OK' then
-    local layout = obj:captureLayout()
+    local layout = obj.captureLayout()
     layout.text = name
     layout.source = "saved"
     obj.layouts[name] = layout
-    obj:persistSavedLayouts()
+    obj.persistSavedLayouts()
   end
   if focused then
     focused:focus()
   end
 end
 
---- ArrangeWindows:clearSavedLayouts()
---- Method
+--- ArrangeWindows.clearSavedLayouts()
+--- Function
 --- Erases the user's saved layouts.
-function obj:clearSavedLayouts()
+function obj.clearSavedLayouts()
   for k,layout in pairs(obj.layouts) do
     if layout.source == "saved" then
       obj.layouts[k] = nil
     end
   end
-  obj:persistSavedLayouts()
+  obj.persistSavedLayouts()
 end
 
---- ArrangeWindows:chooseLayout()
---- Method
+--- ArrangeWindows.chooseLayout()
+--- Function
 --- Displays a chooser for all the layouts in ArrangeWindows.layouts and applies the selected one.
-function obj:chooseLayout()
+function obj.chooseLayout()
   local chooser = hs.chooser.new(function(choice)
-    obj:applyLayout({}, obj.layouts[choice.id])
+    obj.applyLayout({}, obj.layouts[choice.id])
   end)
   
   local choices = {}
@@ -215,10 +214,10 @@ function obj:chooseLayout()
   chooser:show()
 end
 
---- ArrangeWindows:chooseWindow()
---- Method
+--- ArrangeWindows.chooseWindow()
+--- Function
 --- Shows a chooser with each open window's title, and then focuses on the chosen window.
-function obj:chooseWindow()
+function obj.chooseWindow()
   local windows = hs.window.allWindows()
   local choices = {}
   for index,win in ipairs(windows) do
@@ -236,10 +235,10 @@ function obj:chooseWindow()
   chooser:show()
 end
 
---- ArrangeWindows:init()
---- Method
+--- ArrangeWindows.init()
+--- Function
 --- Loads saved layouts from settings.
-function obj:init()
+function obj.init()
   local saved = hs.settings.get("ArrangeWindows.saved")
   if saved then
     for k,v in pairs(saved) do
@@ -254,10 +253,10 @@ function obj:init()
   end
 end
 
---- ArrangeWindows:persistSavedLayouts()
---- Method
+--- ArrangeWindows.persistSavedLayouts()
+--- Function
 --- Copies the user's custom layouts into their settings.
-function obj:persistSavedLayouts()
+function obj.persistSavedLayouts()
   local save = {}
   for k,v in pairs(obj.layouts) do
     if v.source == "saved" then

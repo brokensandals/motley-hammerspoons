@@ -1,17 +1,56 @@
 # motley-hammerspoons
 
-Some spoons for [hammerspoon](https://www.hammerspoon.org).
+Some spoons (plugins) for [hammerspoon](https://www.hammerspoon.org).
 
-## Installation
+|Spoon|Description|
+|----|----|
+|[ArrangeWindows](#arrange-windows)|Quickly rearrange windows into various layouts.|
+|[AudioSelect](#audio-select)|Change audio device or volume using the keyboard only.|
+|[CommandCatalog](#command-catalog)|Manage a command palette and hotkeys for all your Hammerspoon commands in one place.|
+|[MenuChooser](#menu-chooser)|Access each application's menu as a command palette.|
+|[SafariBookmarkChooser](#safari-bookmark-chooser)|Access your bookmarks via a fuzzy finder.|
 
-This will create a symlink for each spoon inside your `~/.hammerspoon/Spoons` folder:
+## Setup
+
+First, symlink or copy the the spoons you want into your `~/.hammerspoon/Spoons` folder.
+You can just run the install script to create symlinks for all of them:
 
 ```bash
 git clone https://github.com/brokensandals/motley-hammerspoons.git
 ./install.sh
 ```
 
-(Alternatively, just symlink or copy the individual spoons you want.)
+Then, in your `init.lua`, load the spoons you're interested in:
+
+```lua
+hs.loadSpoon("ArrangeWindows")
+hs.loadSpoon("AudioSelect")
+hs.loadSpoon("CommandCatalog")
+hs.loadSpoon("MenuChooser")
+hs.loadSpoon("SafariBookmarkChooser")
+```
+
+Then, you just need to set up some way for you to invoke the primary functions provided by each spoon.
+You could bind hotkeys for each of them, but that gets hard to keep track of.
+
+I prefer to set up a fuzzy finder for all the commands, which is what CommandCatalog is for.
+If you add the following to your `init.lua`, you can press CMD+CTRL+P to get a command palette that provides access to all the functionality of these spoons.
+
+```lua
+spoon.CommandCatalog.add('go to window', spoon.ArrangeWindows.chooseWindow, 'cmd+ctrl', 'F')
+spoon.CommandCatalog.add('layout windows', spoon.ArrangeWindows.chooseLayout, 'cmd+ctrl', 'L')
+spoon.CommandCatalog.add('maximize window', spoon.ArrangeWindows.maximize, 'cmd+ctrl', 'M')
+spoon.CommandCatalog.add('save window layout', spoon.ArrangeWindows.saveLayout)
+spoon.CommandCatalog.add('clear window layouts', spoon.ArrangeWindows.clearSavedLayouts)
+spoon.CommandCatalog.add('menu command palette', spoon.MenuChooser.chooseMenuItem, 'shift+cmd+ctrl', 'P')
+spoon.CommandCatalog.add('bookmark palette', spoon.SafariBookmarkChooser.chooseBookmark)
+spoon.CommandCatalog.add('reload hammerspoon config', hs.reload)
+spoon.CommandCatalog.add('change audio output', spoon.AudioSelect.chooseAudioOutput)
+spoon.CommandCatalog.add('change volume', spoon.AudioSelect.chooseAudioOutputVolume)
+spoon.CommandCatalog.sortCommands()
+spoon.CommandCatalog.bindCommandHotkeys()
+hs.hotkey.bind("cmd+ctrl", "P", spoon.CommandCatalog.chooseCommand)
+```
 
 ## ArrangeWindows
 
@@ -23,53 +62,50 @@ You can also hardcode additional layouts by modifying `spoon.ArrangeWindows.layo
 It also supports saving the current arrangement of windows, with a given name, so that you can load it again later.
 Saved layouts are currently persisted using the `hs.settings` module.
 
-Some tangentially-related functionality is also provided:
-
-- Maximize current window
-- Show a fuzzy finder of all window titles, then go to the one you select
-
-Example bindings:
-
-```lua
-hs.loadSpoon("ArrangeWindows")
-hs.hotkey.bind("cmd+ctrl", "M", spoon.ArrangeWindows.maximize, "maximize current window")
-hs.hotkey.bind("cmd+ctrl", "L", spoon.ArrangeWindows.chooseLayout, "layout windows")
-hs.hotkey.bind("cmd+ctrl", "F", spoon.ArrangeWindows.chooseWindow, "go to window")
-hs.hotkey.bind("shift+cmd+ctrl", "S", spoon.ArrangeWindows.saveLayout, "save layout")
-hs.hotkey.bind("shift+cmd+ctrl", "C", spoon.ArrangeWindows.clearSavedLayouts, "clear saved layouts")
-```
+|Function name|Description|
+|---|---|
+|chooseLayout|Shows a fuzzy finder for selecting a layout.|
+|chooseWindow|Shows a fuzzy finder full of window titles so you can choose one to switch focus to.|
+|clearSavedLayouts|Forget all saved layouts.|
+|maximize|maximizes the current window|
+|saveLayout|Saves the current arrangement of windows to a name of your choosing.|
 
 ## AudioSelect
 
 For configuring audio output using the keyboard.
 
-- Switch audio output device using fuzzy finder
-- Change volume by entering a percentage
+|Function name|Description|
+|---|---|
+|chooseAudioOutput|Shows a fuzzy finder for selecting an audio output device by name.|
+|chooseAudioOutputVolume|Provides a text input for changing the volume to a specified percentage.|
 
-```lua
-hs.loadSpoon("AudioSelect")
-hs.hotkey.bind("shift+cmd+ctrl", "1", spoon.AudioSelect.chooseAudioOutput, "set audio output device")
-hs.hotkey.bind("shift+cmd+ctrl", "V", spoon.AudioSelect.chooseAudioOutputVolume, "set volume")
-```
+## CommandCatalog
+
+Keeps a list of commands which can be invoked via a fuzzy finder command palette.
+If you also specify a hotkey when registering the command, the hotkey will be shown in the command palette too.
+
+|Function name|Description|
+|---|---|
+|add(text, fn, [hotkeyMods, hotkeys])|Registers a command.|
+|bindCommandHotkeys|Should be called once after all commands are registered.|
+|chooseCommand|Shows a fuzzy finder with all registered commands.|
+|sortCommands|Sorts the commands alphabetically - call this after all commands are registered, if you want.|
 
 ## MenuChooser
 
 Give every application a command palette!
-This spoon shows a fuzzy finder containing all the menu items of the current (frontmost) application.
 
-```lua
-hs.loadSpoon("MenuChooser")
-hs.hotkey.bind("shift+cmd+ctrl", "P", spoon.MenuChooser.chooseMenuItem, "invoke menu item")
-```
+|Function name|Description|
+|---|---|
+|chooseMenuItem|Shows a fuzzy finder containing all the menu items of the current (frontmost) application.|
 
 ## SafariBookmarkChooser
 
-Opens a fuzzy finder for Safari bookmarks.
+Open a bookmarked web page from anywhere.
 
-```lua
-hs.loadSpoon("SafariBookmarkChooser")
-hs.hotkey.bind("shift+cmd+ctrl", "B", spoon.SafariBookmarkChooser.chooseBookmark, "open bookmark")
-```
+|Function name|Description|
+|---|---|
+|chooseBookmark|Launches Safari and shows a fuzzy finder containing all your bookmarks.|
 
 ## License
 
