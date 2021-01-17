@@ -128,6 +128,7 @@ function obj:saveLayout()
     layout.text = name
     layout.source = "saved"
     obj.layouts[name] = layout
+    obj:persistSavedLayouts()
   end
   if focused then
     focused:focus()
@@ -135,11 +136,12 @@ function obj:saveLayout()
 end
 
 function obj:clearSavedLayouts()
-  for k,layout in obj.layouts do
+  for k,layout in pairs(obj.layouts) do
     if layout.source == "saved" then
       obj.layouts[k] = nil
     end
   end
+  obj:persistSavedLayouts()
 end
 
 function obj:chooseLayout()
@@ -174,6 +176,25 @@ function obj:chooseWindow()
   chooser:choices(choices)
   chooser:placeholderText("window")
   chooser:show()
+end
+
+function obj:init()
+  local saved = hs.settings.get("ArrangeWindows.saved")
+  if saved then
+    for k,v in pairs(saved) do
+      obj.layouts[k] = v
+    end
+  end
+end
+
+function obj:persistSavedLayouts()
+  local save = {}
+  for k,v in pairs(obj.layouts) do
+    if v.source == "saved" then
+      save[k] = v
+    end
+  end
+  hs.settings.set("ArrangeWindows.saved", save)
 end
 
 return obj
