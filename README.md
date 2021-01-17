@@ -4,11 +4,11 @@ Some spoons (plugins) for [hammerspoon](https://www.hammerspoon.org).
 
 |Spoon|Description|
 |----|----|
-|[ArrangeWindows](#arrange-windows)|Quickly rearrange windows into various layouts.|
-|[AudioSelect](#audio-select)|Change audio device or volume using the keyboard only.|
-|[CommandCatalog](#command-catalog)|Manage a command palette and hotkeys for all your Hammerspoon commands in one place.|
-|[MenuChooser](#menu-chooser)|Access each application's menu as a command palette.|
-|[SafariBookmarkChooser](#safari-bookmark-chooser)|Access your bookmarks via a fuzzy finder.|
+|[ArrangeWindows](#arrangewindows)|Quickly rearrange windows into various layouts.|
+|[AudioSelect](#audioselect)|Change audio device or volume using the keyboard only.|
+|[CommandCatalog](#commandcatalog)|Manage a command palette and hotkeys for all your Hammerspoon commands in one place.|
+|[MenuChooser](#menuchooser)|Access each application's menu as a command palette.|
+|[SafariBookmarkChooser](#safaribookmark-chooser)|Access your bookmarks via a fuzzy finder.|
 
 ## Setup
 
