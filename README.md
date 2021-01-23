@@ -8,7 +8,8 @@ Some spoons (plugins) for [hammerspoon](https://www.hammerspoon.org).
 |[AudioSelect](#audioselect)|Change audio device or volume using the keyboard only.|
 |[CommandCatalog](#commandcatalog)|Manage a command palette and hotkeys for all your Hammerspoon commands in one place.|
 |[MenuChooser](#menuchooser)|Access each application's menu as a command palette.|
-|[SafariBookmarkChooser](#safaribookmark-chooser)|Access your bookmarks via a fuzzy finder.|
+|[SafariBookmarkChooser](#safaribookmarkchooser)|Access your bookmarks via a fuzzy finder.|
+|[TaskHelper](#taskhelper)|A wrapper around hs.task that shows notifications and logs stdout/stderr.|
 
 ## Setup
 
@@ -28,6 +29,7 @@ hs.loadSpoon("AudioSelect")
 hs.loadSpoon("CommandCatalog")
 hs.loadSpoon("MenuChooser")
 hs.loadSpoon("SafariBookmarkChooser")
+hs.loadSpoon("TaskHelper")
 ```
 
 Then, you just need to set up some way for you to invoke the primary functions provided by each spoon.
@@ -106,6 +108,14 @@ Open a bookmarked web page from anywhere.
 |Function name|Description|
 |---|---|
 |chooseBookmark|Launches Safari and shows a fuzzy finder containing all your bookmarks.|
+
+## TaskHelper
+
+A wrapper around hs.task.
+
+|Function name|Description|
+|---|---|
+|run(title, path\[, arguments\])|Starts the program at the given path, with the given list of arguments. Shows a (temporary) success or (lasting) failure notification based on the exit code, using the given title. Logs exit code, stdout, and stderr to the Hammerspoon console.|
 
 ## License
 
