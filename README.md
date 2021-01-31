@@ -115,7 +115,7 @@ A wrapper around hs.task.
 
 |Function name|Description|
 |---|---|
-|run(title, path\[, arguments\])|Starts the program at the given path, with the given list of arguments. Shows a (temporary) success or (lasting) failure notification based on the exit code, using the given title. Logs exit code, stdout, and stderr to the Hammerspoon console.|
+|run(title, path\[, arguments\[, options\]\])|Starts the program at the given path, with the given list of arguments. Shows a failure notification based if the exit code is nonzero, using the given title. Logs exit code, stdout, and stderr to the Hammerspoon console. Set `options.notifyOnSuccess` to `true` if you want a temporary notification to be shown on successes too.|
 
 ## License
 

@@ -13,12 +13,15 @@ obj.homepage = "https://github.com/brokensandals/motley-hammerspoons"
 --- An instance of hs.logger
 obj.logger = hs.logger.new('TaskHelper', 'info')
 
---- TaskHelper.run(title, path[, arguments])
+--- TaskHelper.run(title, path[, arguments[, options]])
 --- Function
 --- Runs the executable at the given path, with the given table of arguments.
---- When done, a temporary success notification or permanent failure notification will be shown.
+--- If the exit code is nonzero, a failure notification will be shown.
 --- Stdout and stderr are output with TaskHelper.logger at info and warning level respectively
-function obj.run(title, path, arguments)
+--- Options:
+---   notifyOnSuccess: if true, show a temporary success notification when the command completes successfully
+function obj.run(title, path, arguments, options)
+  options = options or {}
   function taskCallback(exitCode, stdOut, stdErr)
     logTitle = title .. " " .. path .. " " .. hs.inspect.inspect(arguments)
     exitMsg = "returned " .. exitCode
@@ -26,7 +29,9 @@ function obj.run(title, path, arguments)
     notifMsg = path .. " " .. exitMsg
     if exitCode == 0 then
       obj.logger.i(logExitMsg)
-      hs.notify.show(title, 'Succeeded', notifMsg)
+      if options.notifyOnSuccess then
+        hs.notify.show(title, 'Succeeded', notifMsg)
+      end
     else
       obj.logger.w(logExitMsg)
       hs.notify.new({
