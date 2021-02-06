@@ -80,7 +80,15 @@ obj.layouts = {
     windows = {
       {selector = "focused",  unitRect = hs.geometry(0.15,0,0.7,1)}
     }
-  }
+  },
+  ["y-70-30"] = {
+    text = "y seventy-thirty",
+    source = "default",
+    windows = {
+      {selector = "focused", unitRect = hs.geometry(0,0,1,0.7)},
+      {selector = "chooser", unitRect = hs.geometry(0,0.7,1,0.3), prompt = "bottom window"}
+    }
+  },
 }
 
 --- ArrangeWindows.applyLayout(selected, layout)
