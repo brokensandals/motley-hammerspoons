@@ -73,6 +73,13 @@ obj.layouts = {
       {selector = "chooser", unitRect = hs.geometry(0.6,0,0.4,0.5), prompt = "top right window"},
       {selector = "chooser", unitRect = hs.geometry(0.6,0.5,0.4,0.5), prompt = "bottom right window"}
     }
+  },
+  ["centered"] = {
+    text = "centered",
+    source = "default",
+    windows = {
+      {selector = "focused",  unitRect = hs.geometry(0.15,0,0.7,1)}
+    }
   }
 }
 
