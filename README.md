@@ -1,3 +1,12 @@
+UPDATE: some of these have been moved to separate repos:
+
+- https://github.com/brokensandals/ArrangeWindows.spoon
+- https://github.com/brokensandals/CommandCatalog.spoon
+- https://github.com/brokensandals/MenuChooser.spoon
+- https://github.com/brokensandals/TaskHelper.spoon
+
+The others are currently abandoned.
+
 # motley-hammerspoons
 
 Some spoons (plugins) for [hammerspoon](https://www.hammerspoon.org).
